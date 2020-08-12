@@ -1,4 +1,10 @@
 # tulkki
+
+![GitHub All Releases](https://img.shields.io/github/downloads/raspi/tulkki/total?style=for-the-badge)
+![GitHub release (latest by date)](https://img.shields.io/github/v/release/raspi/tulkki?style=for-the-badge)
+![GitHub tag (latest by date)](https://img.shields.io/github/v/tag/raspi/tulkki?style=for-the-badge)
+
+
 Translated HTML templates for Go
 
 See [example directory](_example) for example(s).
