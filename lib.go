@@ -55,7 +55,13 @@ func New(baseContents string, funcs template.FuncMap) Template {
 // If you need access to translation tokens which are used globally,
 // simply inject them to the catalog before page specific tokens.
 func (t *Template) AddPage(name string, contents string, translations catalog.Catalog) {
-	for _, l := range translations.Languages() {
+	langlist := translations.Languages()
+
+	if len(langlist) == 0 {
+		panic(`no languages found`)
+	}
+
+	for _, l := range langlist {
 		// Init cache for pages
 		t.pagesCached[l] = make(map[string]*template.Template)
 	}
