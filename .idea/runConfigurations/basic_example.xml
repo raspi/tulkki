@@ -1,0 +1,11 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="basic example" type="GoApplicationRunConfiguration" factoryName="Go Application">
+    <module name="tulkki" />
+    <working_directory value="$PROJECT_DIR$" />
+    <go_parameters value="-i" />
+    <kind value="DIRECTORY" />
+    <filePath value="$PROJECT_DIR$" />
+    <directory value="$PROJECT_DIR$/_example/basic" />
+    <method v="2" />
+  </configuration>
+</component>
