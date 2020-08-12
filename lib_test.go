@@ -99,3 +99,48 @@ func TestPageTranslationVariable(t *testing.T) {
 		}
 	}
 }
+
+func TestCache(t *testing.T) {
+	translations := getTestTranslations()
+
+	tpl := New(`<html>{{- T "t" -}}</html>`, template.FuncMap{})
+	tpl.AddPage(`test`, ``, translations)
+
+	var tmp bytes.Buffer
+
+	for i := 0; i < 10; i++ {
+		for _, l := range translations.Languages() {
+			tmp.Reset()
+
+			err := tpl.Render(&tmp, `test`, l, nil)
+			if err != nil {
+				t.Fail()
+			}
+
+			printer := message.NewPrinter(l, message.Catalog(translations))
+			expected := `<html>` + printer.Sprintf(`t`) + `</html>`
+
+			if expected != tmp.String() {
+				t.Fail()
+			}
+		}
+	}
+}
+
+func TestPageTokenTranslation(t *testing.T) {
+	translations := getTestTranslations()
+
+	tpl := New(``, template.FuncMap{})
+	tpl.AddPage(`test`, ``, translations)
+
+	for _, l := range translations.Languages() {
+		actual := tpl.Translate(`test`, `t`, l)
+
+		printer := message.NewPrinter(l, message.Catalog(translations))
+		expected := printer.Sprintf(`t`)
+
+		if expected != actual {
+			t.Fail()
+		}
+	}
+}
