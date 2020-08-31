@@ -22,7 +22,10 @@ func TestBaseTemplateTranslationOnly(t *testing.T) {
 	translations := getTestTranslations()
 
 	tpl := New(`<html>{{- T "t" -}}</html>`, template.FuncMap{})
-	tpl.AddPage(`test`, ``, translations)
+	err := tpl.AddPage(`test`, ``, translations)
+	if err != nil {
+		t.Fail()
+	}
 
 	var tmp bytes.Buffer
 	for _, l := range translations.Languages() {
@@ -46,7 +49,10 @@ func TestPageTranslationFunction(t *testing.T) {
 	translations := getTestTranslations()
 
 	tpl := New(`<html>{{- template "content" .C -}}</html>`, template.FuncMap{})
-	tpl.AddPage(`test`, `{{- T "t" -}}`, translations)
+	err := tpl.AddPage(`test`, `{{- T "t" -}}`, translations)
+	if err != nil {
+		t.Fail()
+	}
 
 	var tmp bytes.Buffer
 	for _, l := range translations.Languages() {
@@ -72,7 +78,10 @@ func TestPageTranslationVariable(t *testing.T) {
 	translations := getTestTranslations()
 
 	tpl := New(`<html>{{- template "content" .C -}}</html>`, template.FuncMap{})
-	tpl.AddPage(`test`, `{{- .T -}}`, translations)
+	err := tpl.AddPage(`test`, `{{- .T -}}`, translations)
+	if err != nil {
+		t.Fail()
+	}
 
 	var tmp bytes.Buffer
 	for _, l := range translations.Languages() {
@@ -104,7 +113,10 @@ func TestCache(t *testing.T) {
 	translations := getTestTranslations()
 
 	tpl := New(`<html>{{- T "t" -}}</html>`, template.FuncMap{})
-	tpl.AddPage(`test`, ``, translations)
+	err := tpl.AddPage(`test`, ``, translations)
+	if err != nil {
+		t.Fail()
+	}
 
 	var tmp bytes.Buffer
 
@@ -131,7 +143,10 @@ func TestPageTokenTranslation(t *testing.T) {
 	translations := getTestTranslations()
 
 	tpl := New(``, template.FuncMap{})
-	tpl.AddPage(`test`, ``, translations)
+	err := tpl.AddPage(`test`, ``, translations)
+	if err != nil {
+		t.Fail()
+	}
 
 	for _, l := range translations.Languages() {
 		actual := tpl.Translate(`test`, `t`, l)
