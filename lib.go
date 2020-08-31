@@ -35,8 +35,8 @@ type Template struct {
 }
 
 // New creates translatable HTML pages
-func New(baseContents string, funcs template.FuncMap) Template {
-	t := Template{
+func New(baseContents string, funcs template.FuncMap) *Template {
+	t := &Template{
 		pages:             make(map[string]page),
 		pagesCached:       make(pageCache),
 		baseTemplateFuncs: funcs, // functions available to all pages
