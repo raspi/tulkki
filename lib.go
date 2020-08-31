@@ -54,11 +54,11 @@ func New(baseContents string, funcs template.FuncMap) *Template {
 // Translations are per-page for collision reasons.
 // If you need access to translation tokens which are used globally,
 // simply inject them to the catalog before page specific tokens.
-func (t *Template) AddPage(name string, contents string, translations catalog.Catalog) {
+func (t *Template) AddPage(name string, contents string, translations catalog.Catalog) error {
 	langlist := translations.Languages()
 
 	if len(langlist) == 0 {
-		panic(`no languages found`)
+		return fmt.Errorf(`no languages found`)
 	}
 
 	for _, l := range langlist {
@@ -74,6 +74,8 @@ func (t *Template) AddPage(name string, contents string, translations catalog.Ca
 		contents: contents,
 		trcat:    translations,
 	}
+
+	return nil
 }
 
 func (t *Template) getPageTemplate(templatename string) (p page, err error) {

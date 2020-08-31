@@ -65,7 +65,10 @@ func main() {
 	funcs := template.FuncMap{}
 
 	tpl := tulkki.New(baseHTML, funcs)
-	tpl.AddPage(`testpage`, testPageHTML, pagetranslations)
+	err := tpl.AddPage(`testpage`, testPageHTML, pagetranslations)
+	if err != nil {
+		panic(err)
+	}
 
 	// Generate a page template
 	page := exampleBase{
@@ -77,7 +80,7 @@ func main() {
 
 	// Render the HTML
 	var tmp bytes.Buffer
-	err := tpl.Render(&tmp, `testpage`, useLanguage, page)
+	err = tpl.Render(&tmp, `testpage`, useLanguage, page)
 	if err != nil {
 		panic(err)
 	}
