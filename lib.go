@@ -25,24 +25,26 @@ type pageCache map[language.Tag]map[string]*template.Template
 
 // Template contains HTML used as a base and all the pages that are using that base
 type Template struct {
-	baseTemplateFuncs    template.FuncMap // Global functions for baseTemplateContents template
-	baseTemplateContents string           // Base template as string
-	pages                map[string]page  // Pages which uses baseTemplateContents template
-	pagesCached          pageCache        // template cache for faster processing
-	addPageDefine        bool             // add {{define ...}} to pages automatically?
-	pageDefineName       string           // name for define in pages
-	baseDefineName       string           // name for define in base
+	baseTemplateFuncs       template.FuncMap // Global functions for baseTemplateContents template
+	baseTemplateContents    string           // Base template as string
+	pages                   map[string]page  // Pages which uses baseTemplateContents template
+	pagesCached             pageCache        // template cache for faster processing
+	addPageDefine           bool             // add {{define ...}} to pages automatically?
+	pageDefineName          string           // name for define in pages
+	baseDefineName          string           // name for define in base
+	translationFunctionName string           // name for translation token function
 }
 
 // New creates translatable HTML pages
 func New(baseContents string, funcs template.FuncMap) *Template {
 	t := &Template{
-		pages:             make(map[string]page),
-		pagesCached:       make(pageCache),
-		baseTemplateFuncs: funcs, // functions available to all pages
-		addPageDefine:     true,
-		baseDefineName:    baseDefineName,
-		pageDefineName:    pageDefineName,
+		pages:                   make(map[string]page),
+		pagesCached:             make(pageCache),
+		baseTemplateFuncs:       funcs, // functions available to all pages
+		addPageDefine:           true,
+		baseDefineName:          baseDefineName,
+		pageDefineName:          pageDefineName,
+		translationFunctionName: translationFunctionName,
 	}
 
 	t.baseTemplateContents = `{{define "` + t.baseDefineName + `"}}` + baseContents + `{{end}}`
@@ -110,7 +112,7 @@ func (t *Template) getTemplate(templatename string, language language.Tag) (tpl 
 
 	_ = tpl.Funcs(template.FuncMap{
 		// Translate inside template
-		translationFunctionName: func(s string, a ...interface{}) template.HTML {
+		t.translationFunctionName: func(s string, a ...interface{}) template.HTML {
 			pr := message.NewPrinter(language, message.Catalog(pageTemplate.trcat))
 			return template.HTML(pr.Sprintf(s, a...))
 		},
@@ -139,7 +141,7 @@ func (t *Template) Render(w io.Writer, templatename string, language language.Ta
 		return fmt.Errorf(`couldn't get template %q: %w`, templatename, err)
 	}
 
-	err = tpl.ExecuteTemplate(w, baseDefineName, data)
+	err = tpl.ExecuteTemplate(w, t.baseDefineName, data)
 	if err != nil {
 		return fmt.Errorf(`couldn't execute template %q: %w`, templatename, err)
 	}
