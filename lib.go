@@ -86,45 +86,55 @@ func (t *Template) getPageTemplate(templatename string) (p page, err error) {
 	return p, nil
 }
 
-// Render outputs generated HTML to a writer
-func (t *Template) Render(w io.Writer, templatename string, language language.Tag, data interface{}) (err error) {
-	var tpl *template.Template
-
+// getTemplate gets page's *template.Template in given language
+func (t *Template) getTemplate(templatename string, language language.Tag) (tpl *template.Template, err error) {
 	// Fetch template from cache
 	tpl, ok := t.pagesCached[language][templatename]
 
-	if !ok {
-		// Template was not cached, generate
-		tpl = template.New(``)
+	if ok {
+		return tpl, nil
+	}
 
-		// Load common template functions
-		_ = tpl.Funcs(t.baseTemplateFuncs)
+	// Template was not cached, generate
+	tpl = template.New(``)
 
-		pageTemplate, err := t.getPageTemplate(templatename)
-		if err != nil {
-			return err
-		}
+	// Load common template functions
+	_ = tpl.Funcs(t.baseTemplateFuncs)
 
-		_ = tpl.Funcs(template.FuncMap{
-			// Translate inside template
-			translationFunctionName: func(s string, a ...interface{}) template.HTML {
-				pr := message.NewPrinter(language, message.Catalog(pageTemplate.trcat))
-				return template.HTML(pr.Sprintf(s, a...))
-			},
-		})
+	pageTemplate, err := t.getPageTemplate(templatename)
+	if err != nil {
+		return tpl, err
+	}
 
-		_, err = tpl.Parse(t.baseTemplateContents)
-		if err != nil {
-			return fmt.Errorf(`couldn't parse base template: %w`, err)
-		}
+	_ = tpl.Funcs(template.FuncMap{
+		// Translate inside template
+		translationFunctionName: func(s string, a ...interface{}) template.HTML {
+			pr := message.NewPrinter(language, message.Catalog(pageTemplate.trcat))
+			return template.HTML(pr.Sprintf(s, a...))
+		},
+	})
 
-		_, err = tpl.Parse(pageTemplate.contents)
-		if err != nil {
-			return fmt.Errorf(`couldn't parse template %q: %w`, templatename, err)
-		}
+	_, err = tpl.Parse(t.baseTemplateContents)
+	if err != nil {
+		return tpl, fmt.Errorf(`couldn't parse base template: %w`, err)
+	}
 
-		// Save to cache
-		t.pagesCached[language][templatename] = tpl
+	_, err = tpl.Parse(pageTemplate.contents)
+	if err != nil {
+		return tpl, fmt.Errorf(`couldn't parse template %q: %w`, templatename, err)
+	}
+
+	// Save to cache
+	t.pagesCached[language][templatename] = tpl
+
+	return tpl, nil
+}
+
+// Render outputs generated HTML to a writer
+func (t *Template) Render(w io.Writer, templatename string, language language.Tag, data interface{}) (err error) {
+	tpl, err := t.getTemplate(templatename, language)
+	if err != nil {
+		return fmt.Errorf(`couldn't get template %q: %w`, templatename, err)
 	}
 
 	err = tpl.ExecuteTemplate(w, baseDefineName, data)
