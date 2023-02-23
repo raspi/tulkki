@@ -1,4 +1,4 @@
-# golang.org/x/text v0.3.3
+# golang.org/x/text v0.3.8
 ## explicit
 golang.org/x/text/feature/plural
 golang.org/x/text/internal
